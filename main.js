@@ -1,5 +1,5 @@
 const path = require("path");
-const { unzip } = require('./IOhandler')
+const { unzip, readDir } = require('./IOhandler')
 /*
  * Project: Milestone 1
  * File Name: main.js
@@ -30,3 +30,6 @@ const fs = require("fs")
 
 
 unzip(zipFilePath, pathUnzipped)
+    .then(() => readDir(pathUnzipped))
+    .then(data => console.log(data))
+    .catch(err => console.log(err.message))

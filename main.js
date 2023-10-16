@@ -1,4 +1,5 @@
 const path = require("path");
+const { unzip } = require('./IOhandler')
 /*
  * Project: Milestone 1
  * File Name: main.js
@@ -26,5 +27,6 @@ const pathProcessed = path.join(__dirname, "grayscaled");
 const unzipper = require("unzipper")
 const fs = require("fs")
 
-// fs.createReadStream(zipFilePath)
-//     .pipe(unzipper.Extract({ path: "./unzipped"}))
+
+
+unzip(zipFilePath, pathUnzipped)

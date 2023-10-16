@@ -25,6 +25,7 @@ const pathUnzipped = path.join(__dirname, "unzipped");
 const pathProcessed = path.join(__dirname, "grayscaled");
 
 
+
 unzip(zipFilePath, pathUnzipped)
     .then(() => readDir(pathUnzipped))
     .then((data) => {
@@ -32,7 +33,7 @@ unzip(zipFilePath, pathUnzipped)
         for(var i = 0; i < data.length; i++) {
             files.push(grayScale(data[i], path.join(pathProcessed, path.basename(data[i]).replace("in", "out"))))
         }
-        Promise.all(files)
+        return Promise.all(files)
     })
     .then(() => console.log("grayscale is completed"))
     .catch(err => console.log(err.message))

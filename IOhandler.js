@@ -83,6 +83,7 @@ const grayScale = (pathIn, pathOut) => {
               }
             }
             this.pack().pipe(fs.createWriteStream(pathOut))
+            resolve("grayscale is completed")
           })
       }
     })

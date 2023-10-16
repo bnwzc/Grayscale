@@ -20,16 +20,21 @@ const { unzip, readDir, grayScale } = require('./IOhandler')
 // ALL ERRORS MUST SHOW IN .catch in PROMISE CHAIN
 
 // Promise ALL一起运行
-const IOhandler = require("./IOhandler");
 const zipFilePath = path.join(__dirname, "myfile.zip");
 const pathUnzipped = path.join(__dirname, "unzipped");
 const pathProcessed = path.join(__dirname, "grayscaled");
-const unzipper = require("unzipper")
-const fs = require("fs")
 
 
 unzip(zipFilePath, pathUnzipped)
     .then(() => readDir(pathUnzipped))
+    .then((data) => {
+        var files = []
+        for(var i = 0; i < data.length; i++) {
+            files.push(grayScale(data[i], path.join(pathProcessed, path.basename(data[i]).replace("in", "out"))))
+        }
+        Promise.all(files)
+    })
+    .then(() => console.log("grayscale is completed"))
     .catch(err => console.log(err.message))
 
 

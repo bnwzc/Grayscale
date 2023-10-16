@@ -7,6 +7,7 @@
  * Author:
  *
  */
+const AdmZip = require('adm-zip')
 const unzipper = require("unzipper"),
   fs = require("fs"),
   PNG = require("pngjs").PNG,
@@ -21,19 +22,12 @@ const unzipper = require("unzipper"),
  */
 const unzip = (pathIn, pathOut) => {
   return new Promise((resolve, reject) => {
-    fs.createReadStream(pathIn)
-      .pipe(unzipper.Extract({ path: pathOut }))
-      .promise()
-      .then(() => {
-        console.log("Extraction operation complete!")
-        resolve("Extraction operation complete!")
-      })
-      .catch((error) => {
-        console.error("Error:", error)
-        reject(error)
-      })
-  });
-};
+    const zip = new AdmZip(pathIn)
+    zip.extractAllTo(pathOut,true)
+    console.log("Extraction operation complete!")
+    resolve("Extraction operation complete!")
+  })
+}
 
 /**
  * Description: read all the png files from given directory and return Promise containing array of each png file path
@@ -67,27 +61,34 @@ const readDir = (dir) => {
  */
 const grayScale = (pathIn, pathOut) => {
   return new Promise((resolve, reject) => {
-    fs.createReadStream(pathIn)
-      .pipe(
-        new PNG({
-          filterType: 4,
-        })
-      )
-      .on("parsed", function () {
-        for (var y = 0; y < this.height; y++) {
-          for (var x = 0; x < this.width; x++) {
-            var idx = (this.width * y + x) << 2
-            this.data[idx] = (this.data[idx] + this.data[idx + 1] + this.data[idx + 2]) / 3
-            this.data[idx + 1] = (this.data[idx] + this.data[idx + 1] + this.data[idx + 2]) / 3
-            this.data[idx + 2] = (this.data[idx] + this.data[idx + 1] + this.data[idx + 2]) / 3
-          }
-        }
-        this.pack().pipe(fs.createWriteStream(pathOut))
-      })
-      
-      
+    const outputPath = path.dirname(pathOut)
+    fs.mkdir(outputPath, { recursive: true }, (err) => {
+      if (err) {
+        console.error("Error creating directory:", err)
+        reject(err);
+      } else {
+        fs.createReadStream(pathIn)
+          .pipe(
+            new PNG({
+              filterType: 4,
+            })
+          )
+          .on("parsed", function () {
+            for (var y = 0; y < this.height; y++) {
+              for (var x = 0; x < this.width; x++) {
+                var idx = (this.width * y + x) << 2
+                this.data[idx] = (this.data[idx] + this.data[idx + 1] + this.data[idx + 2]) / 3
+                this.data[idx + 1] = (this.data[idx] + this.data[idx + 1] + this.data[idx + 2]) / 3
+                this.data[idx + 2] = (this.data[idx] + this.data[idx + 1] + this.data[idx + 2]) / 3
+              }
+            }
+            this.pack().pipe(fs.createWriteStream(pathOut))
+          })
+      }
+    })
   })
 }
+
 
 module.exports = {
   unzip,

@@ -25,13 +25,13 @@ const unzip = (pathIn, pathOut) => {
       .pipe(unzipper.Extract({ path: pathOut }))
       .promise()
       .then(() => {
-        console.log("Done!");
-        resolve("Done!");
+        console.log("Extraction operation complete!")
+        resolve("Extraction operation complete!")
       })
       .catch((error) => {
-        console.error("Error:", error);
-        reject(error);
-      });
+        console.error("Error:", error)
+        reject(error)
+      })
   });
 };
 
@@ -65,7 +65,29 @@ const readDir = (dir) => {
  * @param {string} pathProcessed
  * @return {promise}
  */
-const grayScale = (pathIn, pathOut) => {};
+const grayScale = (pathIn, pathOut) => {
+  return new Promise((resolve, reject) => {
+    fs.createReadStream(pathIn)
+      .pipe(
+        new PNG({
+          filterType: 4,
+        })
+      )
+      .on("parsed", function () {
+        for (var y = 0; y < this.height; y++) {
+          for (var x = 0; x < this.width; x++) {
+            var idx = (this.width * y + x) << 2
+            this.data[idx] = (this.data[idx] + this.data[idx + 1] + this.data[idx + 2]) / 3
+            this.data[idx + 1] = (this.data[idx] + this.data[idx + 1] + this.data[idx + 2]) / 3
+            this.data[idx + 2] = (this.data[idx] + this.data[idx + 1] + this.data[idx + 2]) / 3
+          }
+        }
+        this.pack().pipe(fs.createWriteStream(pathOut))
+      })
+      
+      
+  })
+}
 
 module.exports = {
   unzip,
